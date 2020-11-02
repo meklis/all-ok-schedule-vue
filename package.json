@@ -8,8 +8,23 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@popperjs/core": "^2.5.3",
+    "@toast-ui/vue-calendar": "^1.1.1",
+    "bootstrap": "^3.4.1",
+    "bootstrap-datepicker": "^1.9.0",
+    "bootstrap-vue": "^2.18.1",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "eonasdan-bootstrap-datetimepicker": "github:Eonasdan/bootstrap-datetimepicker",
+    "jquery": "^3.5.1",
+    "moment": "^2.29.1",
+    "moment-with-locales-es6": "^1.0.1",
+    "tzdate": "^1.0.1",
+    "vue": "^2.6.12",
+    "vue-confirm-dialog": "^1.0.2",
+    "vue-js-modal": "^2.0.0-rc.6",
+    "vue-js-popover": "^1.2.1",
+    "vue-multiselect": "^2.1.6",
+    "vue-popperjs": "^2.3.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
