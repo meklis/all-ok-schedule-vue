@@ -1,12 +1,23 @@
 import axios from 'axios'
 
 
+Array.prototype.removeValue = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
+
+
 export default class ServerApi {
     /**
      * @type AxiosInstance
      */
-    _http = null;
-    _devIp = "";
+    _http = null
     _promises = [];
     _inProccessMethods = [];
     _waitEnabled = false;
@@ -27,47 +38,131 @@ export default class ServerApi {
             return config;
         });
     }
-
-    /**
-     *
-     * @returns {Promise<AxiosResponse<T>>}
-     */
-    getDeviceModules(callback) {
-        this._inProccessMethods.push('modules');
-        return this._http.get('/private/switcher/modules') .then(resp => {
-            callback(resp.data)
-            this._inProccessMethods.remove('modules');
+    getCalendarTypes(callback) {
+        this._inProccessMethods.push('calendar_types');
+        let promise = this._http.get('/v2/private/employees/schedule_types') .then(resp => {
+            callback(resp.data.data)
+            this._inProccessMethods.removeValue('calendar_types');
             return resp
-        }, err => {
-            console.log(err)
-            this._inProccessMethods.remove('modules');
-            return err
-        })
-    }
-    getDeviceStoreInfo(callback) {
-        this._inProccessMethods.push('device_store_info');
-        let promise =  this._http.get('/private/switcher/device_store_info') .then(resp => {
-            callback(resp.data)
-            return resp
-        }, err => {
-            console.log(err)
-            return err
         }).finally(() => {
-            this._inProccessMethods.remove('device_store_info');
-        })
+            this._inProccessMethods.removeValue('calendar_types');
+        });
+
         if(this._waitEnabled) {
             this._promises.push(promise);
         }
         return promise;
     }
-    getDeviceInfo(callback) {
-        this._inProccessMethods.push('device_info');
-        let promise = this._http.get('/private/switcher/device_info') .then(resp => {
-            callback(resp.data)
-            this._inProccessMethods.remove('device_info');
+
+    getGroups(callback) {
+        this._inProccessMethods.push('groups');
+        let promise = this._http.get('/v2/private/employees/schedule_groups') .then(resp => {
+            callback(resp.data.data)
+            this._inProccessMethods.removeValue('groups');
             return resp
         }).finally(() => {
-            this._inProccessMethods.remove('device_info');
+            this._inProccessMethods.removeValue('groups');
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+
+    getEmployees(callback) {
+        this._inProccessMethods.push('employees');
+        let promise = this._http.get('/v2/private/employees/responsible_list') .then(resp => {
+            callback(resp.data.data)
+            this._inProccessMethods.removeValue('employees');
+            return resp
+        }).finally(() => {
+            this._inProccessMethods.removeValue('employees');
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+
+    getSchedules(callback, start, end) {
+        this._inProccessMethods.push('schedules');
+        let promise = this._http.get('/v2/private/employees/schedule', {
+            params: {
+              start: start + " 00:00:00",
+              end: end + " 23:59:59",
+            },
+        }) .then(resp => {
+            callback(resp.data.data)
+            this._inProccessMethods.removeValue('schedules');
+            return resp
+        }).finally(() => {
+            this._inProccessMethods.removeValue('schedules');
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+
+    deleteSchedule(id) {
+        this._inProccessMethods.push('delete');
+        let promise = this._http.delete('/v2/private/employees/schedule/' + id , {
+        }) .then(resp => {
+            this._inProccessMethods.removeValue('delete');
+            return resp
+        }).finally(() => {
+            this._inProccessMethods.removeValue('delete');
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+
+    createSchedule(data) {
+        this._inProccessMethods.push('createSchedule');
+        let promise = this._http.post('/v2/private/employees/schedule', data) .then(resp => {
+            this._inProccessMethods.removeValue('createSchedule');
+            return resp
+        }).finally((f ) => {
+            this._inProccessMethods.removeValue('createSchedule');
+            return f
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+    updateSchedule(id, data) {
+        this._inProccessMethods.push('updateSchedule');
+        let promise = this._http.put('/v2/private/employees/schedule/'+id, data) .then(resp => {
+            this._inProccessMethods.removeValue('updateSchedule');
+            return resp
+        }).finally((f) => {
+            this._inProccessMethods.removeValue('updateSchedule');
+            return f
+        });
+
+        if(this._waitEnabled) {
+            this._promises.push(promise);
+        }
+        return promise;
+    }
+
+    getSchedule(callback, id) {
+        this._inProccessMethods.push('schedule');
+        let promise = this._http.get('/v2/private/employees/schedule/' + id , {
+        }) .then(resp => {
+            callback(resp.data)
+            this._inProccessMethods.removeValue('schedule');
+            return resp
+        }).finally(() => {
+            this._inProccessMethods.removeValue('schedule');
         });
 
         if(this._waitEnabled) {
@@ -92,7 +187,7 @@ export default class ServerApi {
             }
             return resp
         }).finally(() => {
-            this._inProccessMethods.remove(actionName);
+            this._inProccessMethods.removeValue(actionName);
         }).catch(e => {
             console.log("Catching error from getAction")
             console.log(e)
@@ -135,10 +230,4 @@ export default class ServerApi {
     getInProccessMethods() {
         return this._inProccessMethods;
     }
-
-    setDevIp(ip) {
-        this._http.defaults.headers.common['X-Device-Ip'] = ip;
-        return this;
-    }
-
 }

@@ -1,0 +1,12 @@
+{
+  "apiBaseURL": "https://apiv2.golden.net.ua",
+  "getTokenURL": "/token",
+  "calendar": {
+    "hourStart": 6,
+    "hourEnd": 22,
+    "defaultView": "week",
+    "dayNames": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+    "startDayOfWeek": 1,
+    "visibleWeeksCount": 6
+  }
+}

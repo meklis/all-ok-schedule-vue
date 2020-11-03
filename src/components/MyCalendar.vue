@@ -1,9 +1,12 @@
 <template>
     <div class="container-fluid" >
         <transition name="fade">
+        <div style="color: #FFF; position:fixed; right: 5px; top: 5px; border-radius: 5px; border: 1px solid #AAAAAA; background: #B0B0B0; z-index: 9998; padding: 10px;" v-show="processing">Синхронизация...</div>
+        </transition>
+        <transition name="fade">
             <div id="preloader" v-show="loading"
                  style="padding-top: 250px; position: fixed; top: 0; left: 0; height: 100%; width: 100%; background:  rgba(0, 0, 0, .1); z-index: 9999">
-                <img style="width: 120px;" src="/assets/img/spinner-blue.gif" align="center">
+                <img style="width: 120px;" src="assets/img/spinner-blue.gif" align="center">
             </div>
         </transition>
         <vue-confirm-dialog class="confirm-dialog"></vue-confirm-dialog>
@@ -116,9 +119,8 @@
         <div class="row">
             <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
                 <div class="row">
-                    <div class="col-md-4 col-sm-4 col-lg-3 col-xs-12 "
-                         style="font-family: Calibri; font-weight: bold; font-size: 18pt">
-                        {{viewName}}
+                    <div class="col-md-4 col-sm-4 col-lg-3 col-xs-12 ">
+                         <div style="font-family: Calibri; font-weight: bold; font-size: 18pt">{{viewName}}</div>
                     </div>
                     <div class="col-sm-3 col-lg-2 col-md-3 col-xs-6">
                         <button class="btn btn-primary" style="margin: 3px" v-on:click="prevView()"><span
@@ -255,6 +257,95 @@
             }*/
         },
         methods: {
+            syncElement(elem) {
+                let errLogic = function(e) {
+
+                    this.$confirm(
+                        {
+                            message: `Не удалось сохранить запись - ${e.message}`,
+                            button: {
+                                yes: 'OK'
+                            },
+                            /**
+                             * Callback Function
+                             * @param {Boolean} confirm
+                             */
+                            callback: confirm => {
+                                if (confirm) {
+                                    this.loadSchedules();
+                                }
+                            }
+                        }
+                    )
+                }
+                this.processing = true
+                if(elem.id <= 0) {
+                    return this.$api.createSchedule({
+                        calendar_id: elem.calendarId,
+                        employee_id: elem.employee,
+                        groups: elem.groupIds,
+                        title: elem.title,
+                        start: moment(elem.start).format("YYYY-MM-DD HH:mm:ss"),
+                        end: moment(elem.end).format("YYYY-MM-DD HH:mm:ss"),
+                        is_all_day: elem.isAllDay,
+                    }).catch( e => {
+                        errLogic(e)
+                        throw e;
+                    }).finally( (f) => {
+                        this.processing = false
+                        return f;
+                    })
+                } else {
+                    return this.$api.updateSchedule(elem.id, {
+                        calendar_id: elem.calendarId,
+                        employee_id: elem.employee,
+                        groups: elem.groupIds,
+                        title: elem.title,
+                        start: moment(elem.start).format("YYYY-MM-DD HH:mm:ss"),
+                        end: moment(elem.end).format("YYYY-MM-DD HH:mm:ss"),
+                        is_all_day: elem.isAllDay,
+                    }).catch( e => {
+                        errLogic(e)
+                        throw e;
+                    }).finally((f) => {
+                        this.processing = false
+                        return f
+                    });
+                }
+            },
+            loadSchedules() {
+                this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
+                this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+                this.loading = true
+
+                this.$api.getSchedules(r => {
+                    this.scheduleList = []
+                    r.forEach(e => {
+                        console.log(e)
+                        this.scheduleList.push({
+                            id: e.id,
+                            start: new Date(e.start),
+                            end: new Date(e.end),
+                            category: 'time',
+                            dueDateClass: '',
+                            title: e.title,
+                            isAllDay: e.is_all_day,
+                            calendarId: e.calendar.id,
+                            focusTrap: false,
+                            form: {
+                              employee: e.employee,
+                              calendar: e.calendar,
+                              groups: e.groups,
+                            },
+                        })
+                    });
+                },  moment(new Date(this.dates.start)).format("YYYY-MM-DD"), moment(new Date(this.dates.end)).format("YYYY-MM-DD")).catch(e => {
+                    console.log(e);
+                    alert('Не удалось загрузить задачи, перезагрузите страницу');
+                }).finally(() => {
+                    this.loading = false
+                })
+            },
             getScheduleById(id) {
                 var num = 0;
                 this.scheduleList.some((e, n) => {
@@ -342,6 +433,28 @@
                             if (confirm) {
                                 this.scheduleList.some( (e, num) => {
                                     if(e.id === schedule.id) {
+                                        this.$api.deleteSchedule(e.id).catch( e => {
+                                            this.$confirm(
+                                                {
+                                                    message: `Не удалось удалить запись - ${e.message}`,
+                                                    button: {
+                                                        yes: 'OK'
+                                                    },
+                                                    /**
+                                                     * Callback Function
+                                                     * @param {Boolean} confirm
+                                                     */
+                                                    callback: confirm => {
+                                                        if (confirm) {
+                                                            this.loadSchedules();
+                                                        }
+                                                    }
+                                                }
+                                            )
+                                            throw e;
+                                        }).finally( () => {
+                                            this.processing = false
+                                        })
                                         this.scheduleList.remove(num)
                                         return true;
                                     }
@@ -388,15 +501,17 @@
                         schedule.title = schedule.form.calendar.name + ' - ' + schedule.form.employee.name
                     }
                 }
+                if(schedule.isAllDay) {
+                    schedule.start = new Date(moment(schedule.start).format("YYYY-MM-DD") + " 00:00:00")
+                    schedule.end = new Date(moment(schedule.end).format("YYYY-MM-DD") + " 23:59:59")
+                }
 
-
-
-                console.log("try save element")
-                console.log(schedule);
+                schedule.groupIds = groupIds;
 
                 if (schedule.id <= 0) {
                     let newId = this.getId();
-                    console.log("New ID for element = "+newId)
+                    console.log("New ID for element = " + newId)
+
                     this.scheduleList.push({
                         id: newId,
                         calendarId: schedule.form.calendar.id,
@@ -406,26 +521,12 @@
                         form: schedule.form,
                         start: schedule.start,
                         end: schedule.end,
-                        employeeId: schedule.form.employee.id,
-                        groupIds: groupIds,
                         isAllDay: schedule.isAllDay,
                     })
-/*
-                    this.$refs.tuiCalendar.invoke('createSchedules', [
-                        {
-                            id: this.getId(),
-                            calendarId: schedule.form.calendar.id,
-                            title: schedule.form.calendar.name + ' - ' + schedule.form.employee.name,
-                            category: 'time',
-                            dueDateClass: '',
-                            start: new TZDate(schedule.start),
-                            end: new TZDate(schedule.end),
-                        }
-                    ])*/
                 } else {
                     var num = -1;
                     this.scheduleList.some((e, n) => {
-                        if(e.id === schedule.id) {
+                        if (e.id === schedule.id) {
                             num = n
                             return true;
                         }
@@ -434,34 +535,35 @@
                         start: schedule.start,
                         end: schedule.end,
                         title: schedule.title,
+                        isAllDay: schedule.isAllDay,
                     });
                     this.scheduleList[num] = schedule
                 }
                 this.$modal.hide('edit-schedule')
+                this.syncElement(schedule)
                 return true
             },
             nextView() {
                 this.$refs.tuiCalendar.invoke('next');
-                this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
-                this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+                this.loadSchedules()
             },
             prevView() {
                 this.$refs.tuiCalendar.invoke('prev');
-                this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
-                this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+                this.loadSchedules()
             },
             today() {
                 this.$refs.tuiCalendar.invoke('today');
-                this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
-                this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+                this.loadSchedules()
             },
             changeView(viewName) {
                 this.view = viewName;
                 console.log('Change view to ' + viewName)
+                setTimeout( () => {
+                    this.loadSchedules()
+                }, 150)
             },
             onAfterRenderSchedule() {
-                this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
-                this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+                //  this.loadSchedules()
                 // implement your code
             },
             onBeforeCreateSchedule(e) {
@@ -529,13 +631,11 @@
                     category: 'time',
                     start: new Date(),
                     end: new Date(),
-                    employeeId: -1,
                     form: {
                         groups: [],
                         employee: null,
                         calendar: null,
                     },
-                    groupIds: [],
                     isAllDay: props.isAllDay,
                 }
                 if (props.start !== null) {
@@ -555,130 +655,29 @@
         },
         data() {
             return {
+                processing: false,
                 popper: null,
-                groups: [
-                    {id: 1, name: 'Софиевская Борщаговка'},
-                    {id: 2, name: 'Киев'},
-                    {id: 3, name: 'Умань'},
-                    {id: 4, name: 'Одесса'},
-                    {id: 5, name: 'Черкассы'},
-                    {id: 6, name: 'Харьков'},
-                    {id: 7, name: 'Рокитное'},
-                    {id: 8, name: 'Херсон'},
-                    {id: 9, name: 'Херосон'}
-                ],
-                employees: [
-                    {id: 1, name: 'Приймук Андрей',},
-                    {id: 2, name: 'Григорий Куцый',},
-                    {id: 4, name: 'Дмитрий Куценко',},
-                    {id: 9, name: 'Бояр Максим',},
-                    {id: 5, name: 'Олександр Олейников',},
-                ],
+                groups: [],
+                employees: [],
                 loading: false,
                 element: {
                     id:  -1,
                     calendarId: '',
                     title: '',
-                    employeeId: -1,
                     form: {
                       groups: [],
                       employee: {},
                       calendar: {},
                     },
-                    groupIds: [],
                     category: 'time',
                     start: new Date(),
                     end: new Date(),
                     focusTrap: false,
                     isAllDay: false,
-                },calendarList: [
-                    {
-                        id: '0',
-                        name: 'Дежурство',
-                        color: '#ffffff',
-                        bgColor: '#31B404',
-                        dragBgColor: '#008f14',
-                        borderColor: '#006805'
-                    },
-                    {
-                        id: '1',
-                        name: 'Маркетинг',
-                        color: '#ffffff',
-                        bgColor: '#3104B4',
-                        dragBgColor: '#3104B4',
-                        borderColor: '#3104B4'
-                    },
-                    {
-                        id: '2',
-                        name: 'Больничные',
-                        color: '#ffffff',
-                        bgColor: '#AEB404',
-                        dragBgColor: '#AEB404',
-                        borderColor: '#AEB404'
-                    },
-                    {
-                        id: '3',
-                        name: 'Отпуск',
-                        color: '#ffffff',
-                        bgColor: '#B40404',
-                        dragBgColor: '#B40404',
-                        borderColor: '#B40404'
-                    },
-                ],
-                scheduleList: [
-                    {
-                        id: 101,
-                        calendarId: '0',
-                        title: 'Бояр Максим',
-                        category: 'time',
-                        dueDateClass: '',
-                        start: new Date('2020-10-27 14:30:00'),
-                        end: new Date('2020-10-27 19:30:00'),
-                        employeeId: 9,
-                        form: {
-                            groups: [
-                                {id: 1, name: 'Софиевская Борщаговка'},
-                                {id: 2, name: 'Киев'},
-                                {id: 7, name: 'Рокитное'},
-                                {id: 8, name: 'Херсон'},
-                            ],
-                            employee: {
-                                id: 9,
-                                name: 'Бояр Максим'
-                            },
-                            calendar: {
-                                id: '0',
-                                name: 'Дежурство',
-                                color: '#ffffff',
-                                bgColor: '#31B404',
-                                dragBgColor: '#3104B4',
-                                borderColor: '#3104B4'
-                            },
-                        },
-                        groupIds: [1,2,7,8],
-                        focusTrap: false,
-                        isAllDay: false,
-                    },
-                    {
-                        id: 102,
-                        calendarId: '0',
-                        title: 'Приймук Андрей',
-                        category: 'time',
-                        dueDateClass: '',
-                        start: new Date('2020-10-27 08:30:00'),
-                        end: new Date('2020-10-27 13:30:00'),
-                        employeeId: -1,
-                        form: {
-                            groups: [],
-                            employee: null,
-                            calendar: null,
-                        },
-                        groupIds: [],
-                        focusTrap: false,
-                        isAllDay: false,
-                    }
-                ],
-                view: 'week',
+                },
+                calendarList: [],
+                scheduleList: [],
+                view: this.$config.calendar.defaultView,
                 dates: {
                     start: '',
                     end: '',
@@ -698,14 +697,14 @@
                     showTimezoneCollapseButton: false,
                     timezonesCollapsed: false,
                     startDayOfWeek: 1,
-                    daynames: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-                    hourStart: 6,
-                    hourEnd: 22,
+                    daynames: this.$config.calendar.dayNames,
+                    hourStart: this.$config.calendar.hourStart,
+                    hourEnd: this.$config.calendar.hourEnd,
                 },
                 month: {
-                    visibleWeeksCount: 6,
-                    startDayOfWeek: 1,
-                    daynames: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                    visibleWeeksCount: this.$config.calendar.visibleWeeksCount,
+                    startDayOfWeek: this.$config.calendar.startDayOfWeek,
+                    daynames: this.$config.calendar.dayNames,
                 },
                 disableDblClick: false,
                 isReadOnly: false,
@@ -741,9 +740,38 @@
             }
         },
         mounted() {
-
-            this.dates.start = this.$refs.tuiCalendar.invoke('getDateRangeStart');
-            this.dates.end = this.$refs.tuiCalendar.invoke('getDateRangeEnd');
+            this.loading = true
+            this.$api.enableWaiting()
+            this.$api.getGroups(r => {
+                this.groups = []
+                r.forEach(gr => {
+                    this.groups.push(gr)
+                })
+            })
+            this.$api.getCalendarTypes(r => {
+                console.log(r)
+                this.calendarList = []
+                r.forEach(c => {
+                    this.calendarList.push({
+                        id: c.id,
+                        name: c.name,
+                        color: c.colors.color,
+                        bgColor: c.colors.bgColor,
+                        dragBgColor:  c.colors.dragBgColor,
+                        borderColor:  c.colors.borderColor,
+                    })
+                })
+            })
+            this.$api.getEmployees(r => {
+                this.employees = []
+                r.forEach(e => {
+                    this.employees.push(e)
+                })
+            })
+            this.$api.waitResponses().then(()=>{
+                this.loading = false
+            })
+            this.loadSchedules()
             $("body").on("click",function(e){
                 if($(e.target).hasClass('tui-full-calendar-time-schedule-content')) {
                    return
