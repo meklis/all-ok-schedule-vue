@@ -1,12 +1,14 @@
 <template>
-    <div class="container-fluid" >
+    <div class="container-fluid">
         <transition name="fade">
-        <div style="color: #FFF; position:fixed; right: 5px; top: 5px; border-radius: 5px; border: 1px solid #AAAAAA; background: #B0B0B0; z-index: 9998; padding: 10px;" v-show="processing">Синхронизация...</div>
+            <div style="color: #FFF; position:fixed; right: 5px; top: 5px; border-radius: 5px; border: 1px solid #AAAAAA; background: #B0B0B0; z-index: 9998; padding: 10px;"
+                 v-show="processing">Синхронизация...
+            </div>
         </transition>
         <transition name="fade">
             <div id="preloader" v-show="loading"
                  style="padding-top: 250px; position: fixed; top: 0; left: 0; height: 100%; width: 100%; background:  rgba(0, 0, 0, .1); z-index: 9999">
-                <img style="width: 120px;" src="assets/img/spinner-blue.gif" align="center">
+                <img style="width: 80px;" src="assets/img/spinner-blue.gif" align="center">
             </div>
         </transition>
         <vue-confirm-dialog class="confirm-dialog"></vue-confirm-dialog>
@@ -19,9 +21,9 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12 col-xs-12 col-md-12 col-sm-12">
-                        <div class="form-horizontal" >
-                             <div  class="input-group" v-if="element.id === -1">
-                                <span class="input-group-addon" ><i class="glyphicon glyphicon-briefcase"></i></span>
+                        <div class="form-horizontal">
+                            <div class="input-group" v-if="element.id === -1">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-briefcase"></i></span>
 
                                 <multi-select v-model="element.form.calendar" :options="calendarList"
                                               :multiple="false"
@@ -38,10 +40,13 @@
                                     </template>
                                 </multi-select>
                             </div>
-                            <div style="color: darkred; font-size: 12px; text-align: right" v-if="element.form.calendar === null">Обязательное поле</div>
-                            <div style="margin-bottom: 17px" v-if="element.form.calendar !== null && element.id === -1"></div>
+                            <div style="color: darkred; font-size: 12px; text-align: right"
+                                 v-if="element.form.calendar === null">Обязательное поле
+                            </div>
+                            <div style="margin-bottom: 17px"
+                                 v-if="element.form.calendar !== null && element.id === -1"></div>
 
-                            <div  class="input-group">
+                            <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                                 <multi-select v-model="element.form.employee" :options="employees" :multiple="false"
                                               :close-on-select="true" :clear-on-select="false" :preserve-search="true"
@@ -59,7 +64,9 @@
                                     </template>
                                 </multi-select>
                             </div>
-                            <div style="color: darkred; font-size: 12px;text-align: right" v-if="element.form.employee === null">Обязательное поле</div>
+                            <div style="color: darkred; font-size: 12px;text-align: right"
+                                 v-if="element.form.employee === null">Обязательное поле
+                            </div>
                             <div style="margin-bottom: 17px" v-if="element.form.employee !== null"></div>
 
                             <div style="margin-bottom: 17px" class="input-group">
@@ -85,9 +92,12 @@
 
                             <div class="row">
                                 <div class="col-lg-1 col-xs-1 col-md-1 col-sm-1" style="margin-bottom: 10px">
-                                    <input type="checkbox" class="form-control" style="height: 30px; width: 30px; border-color: #C0C0C0" v-model="element.isAllDay">
+                                    <input type="checkbox" class="form-control"
+                                           style="height: 30px; width: 30px; border-color: #C0C0C0"
+                                           v-model="element.isAllDay">
                                 </div>
-                                <div class="col-lg-10 col-xs-10 col-md-10 col-sm-10" style="margin-bottom: 10px; padding-top: 10px">
+                                <div class="col-lg-10 col-xs-10 col-md-10 col-sm-10"
+                                     style="margin-bottom: 10px; padding-top: 10px">
                                     <span style="float: left; color: #707070">Весь день</span>
                                 </div>
 
@@ -104,9 +114,11 @@
 
                             <div class="row" style="margin-top: 15px">
                                 <div class="col-lg-3 col-xs-4 col-md-3 col-sm-3" style="">
-                                    <button class="btn btn-primary btn-block" @click="saveSchedule(null)" :disabled="element.form.calendar === null || element.form.employee === null ">
+                                    <button class="btn btn-primary btn-block" @click="saveSchedule(null)"
+                                            :disabled="element.form.calendar === null || element.form.employee === null ">
                                         <span
-                                                class="glyphicon glyphicon-floppy-disk" aria-hidden="true" style="font-size: 120%; margin-top: 3px"></span>
+                                                class="glyphicon glyphicon-floppy-disk" aria-hidden="true"
+                                                style="font-size: 120%; margin-top: 3px"></span>
                                     </button>
                                 </div>
                             </div>
@@ -119,10 +131,15 @@
         <div class="row">
             <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
                 <div class="row">
-                    <div class="col-md-4 col-sm-4 col-lg-3 col-xs-12 ">
-                         <div style="font-family: Calibri; font-weight: bold; font-size: 18pt">{{viewName}}</div>
+                    <div class="col-md-4 col-sm-4 col-lg-4 col-xs-12">
+                        <div style="font-family: Calibri; font-weight: bold; font-size: 14pt">{{viewName}}</div>
                     </div>
-                    <div class="col-sm-3 col-lg-2 col-md-3 col-xs-6">
+                    <div class="col-sm-4 col-md-4 col-lg-4  col-xs-6">
+                        <button :disabled="isReadOnly" @click="createModal()" class="btn btn-primary" style="margin-left: 3px; margin-top: 3px; margin-bottom: 3px; margin-right: 15px;">
+                    <span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </button>
+
                         <button class="btn btn-primary" style="margin: 3px" v-on:click="prevView()"><span
                                 class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
                         <button class="btn btn-primary" style="margin: 3px" v-on:click="today()"><span
@@ -130,7 +147,7 @@
                         <button class="btn btn-primary" style="margin: 3px" v-on:click="nextView()"><span
                                 class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                     </div>
-                    <div class="col-sm-4  col-lg-3 col-md-4 col-xs-6">
+                    <div class="col-sm-4  col-md-4  col-lg-4 col-xs-6">
                         <button class="btn btn-primary" style="margin: 3px" :disabled="view === 'day'"
                                 v-on:click="changeView('day')">День
                         </button>
@@ -143,37 +160,41 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-1 col-xs-12 col-md-1 col-sm-1">
-                <button @click="createModal()" class="btn btn-primary btn-block">
-                    <span
-                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </button>
-            </div>
-            <div class="col-sm-11 col-xs-12 col-md-11 col-lg-11" id="calendar-view-block" style="overflow: hidden;">
+            <div class="col-sm-12 col-xs-12 col-md-12 col-lg-12" id="calendar-view-block" style="overflow: hidden;">
                 <div id="view-schedule" role="tooltip" ref="tooltip" class="not-close-view">
-                    <div :style="'background: '+getScheduleColor(element.calendarId)+'; height: 6px; width: 100%; margin-top: 0; margin-bottom: 5px; border-top-left-radius: 4px; border-top-right-radius: 4px'" ></div>
+                    <div :style="'background: '+getScheduleColor(element.calendarId)+'; height: 6px; width: 100%; margin-top: 0; margin-bottom: 5px; border-top-left-radius: 4px; border-top-right-radius: 4px'"></div>
                     <div style="position: absolute; top: 5px; left: 1px; font-size: 9px">{{element.id}}</div>
                     <div class="row not-close-view" style="padding: 5px;">
                         <div class="not-close-view col-sm-12 col-md-12 col-xs-12 col-lg-12" style="text-align: left">
-                            <div class="not-close-view" style="font-weight: bold; text-align: center;">{{element.title}}</div>
+                            <div class="not-close-view" style="font-weight: bold; text-align: center;">
+                                {{element.title}}
+                            </div>
                             Группы:
-                            <ol class="not-close-view" style="padding-left: 20px; text-align: left; font-weight: normal; font-style: italic">
-                                <li class="not-close-view" v-for="gr in element.form.groups" :key="gr.id" style="font-size: 90%">{{gr.name}}</li>
+                            <ol class="not-close-view"
+                                style="padding-left: 20px; text-align: left; font-weight: normal; font-style: italic">
+                                <li class="not-close-view" v-for="gr in element.form.groups" :key="gr.id"
+                                    style="font-size: 90%">{{gr.name}}
+                                </li>
                             </ol>
                         </div>
                         <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4" style="padding-left: 15px; padding-right: 0">
-                            <button class="btn btn-primary btn-block" title="Клонировать запись" @click="duplicateSchedule()"><span class="glyphicon glyphicon-duplicate" ></span></button>
+                            <button :disabled="isReadOnly" class="btn btn-primary btn-block" title="Клонировать запись"
+                                    @click="duplicateSchedule()"><span class="glyphicon glyphicon-duplicate"></span>
+                            </button>
                         </div>
                         <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4" style="padding-left: 5px; padding-right: 5px">
-                            <button class="btn btn-primary btn-block" title="Изменить запись" @click="editSchedule()"><span class="glyphicon glyphicon-edit" ></span></button>
+                            <button :disabled="isReadOnly" class="btn btn-primary btn-block" title="Изменить запись" @click="editSchedule()">
+                                <span class="glyphicon glyphicon-edit"></span></button>
                         </div>
                         <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4" style="padding-left: 0; padding-right: 15px">
-                            <button class="btn btn-primary btn-block" title="Удалить запись" @click="deleteSchedule(element)"><span class="	glyphicon glyphicon-trash" ></span></button>
+                            <button :disabled="isReadOnly" class="btn btn-primary btn-block" title="Удалить запись"
+                                    @click="deleteSchedule(element)"><span class="	glyphicon glyphicon-trash"></span>
+                            </button>
                         </div>
                     </div>
 
                 </div>
-                <calendar ref="tuiCalendar" style="margin-bottom: 0; margin-top: 0"
+                <calendar ref="tuiCalendar" style="margin-bottom: 0; margin-top: 0;"
                           :calendars="calendarList"
                           :schedules="scheduleList"
                           :view="view"
@@ -209,7 +230,7 @@
     import moment from 'moment';
     import Multiselect from 'vue-multiselect'
     import DateTimePicker from './DateTimePicker';
-    import { createPopper } from '@popperjs/core';
+    import {createPopper} from '@popperjs/core';
     import $ from 'jquery'
     import TZDate from 'tzdate'
 
@@ -241,24 +262,17 @@
             },
         },
         watch: {
-            element: {
-                deep: true,
-                handler(e) {
-                    console.log("changed schedule component")
-                    console.log(e)
-                }
-            }
-           /* scheduleList: {
-                deep: true,
-                handler(e) {
-                    console.log(e)
+            /* scheduleList: {
+                 deep: true,
+                 handler(e) {
+                     console.log(e)
 
-                },
-            }*/
+                 },
+             }*/
         },
         methods: {
             syncElement(elem) {
-                let errLogic = function(e) {
+                let errLogic = function (e) {
 
                     this.$confirm(
                         {
@@ -279,7 +293,7 @@
                     )
                 }
                 this.processing = true
-                if(elem.id <= 0) {
+                if (elem.id <= 0) {
                     return this.$api.createSchedule({
                         calendar_id: elem.calendarId,
                         employee_id: elem.employee,
@@ -288,10 +302,10 @@
                         start: moment(elem.start).format("YYYY-MM-DD HH:mm:ss"),
                         end: moment(elem.end).format("YYYY-MM-DD HH:mm:ss"),
                         is_all_day: elem.isAllDay,
-                    }).catch( e => {
+                    }).catch(e => {
                         errLogic(e)
                         throw e;
-                    }).finally( (f) => {
+                    }).finally((f) => {
                         this.processing = false
                         return f;
                     })
@@ -304,7 +318,7 @@
                         start: moment(elem.start).format("YYYY-MM-DD HH:mm:ss"),
                         end: moment(elem.end).format("YYYY-MM-DD HH:mm:ss"),
                         is_all_day: elem.isAllDay,
-                    }).catch( e => {
+                    }).catch(e => {
                         errLogic(e)
                         throw e;
                     }).finally((f) => {
@@ -321,7 +335,6 @@
                 this.$api.getSchedules(r => {
                     this.scheduleList = []
                     r.forEach(e => {
-                        console.log(e)
                         this.scheduleList.push({
                             id: e.id,
                             start: new Date(e.start),
@@ -333,13 +346,13 @@
                             calendarId: e.calendar.id,
                             focusTrap: false,
                             form: {
-                              employee: e.employee,
-                              calendar: e.calendar,
-                              groups: e.groups,
+                                employee: e.employee,
+                                calendar: e.calendar,
+                                groups: e.groups,
                             },
                         })
                     });
-                },  moment(new Date(this.dates.start)).format("YYYY-MM-DD"), moment(new Date(this.dates.end)).format("YYYY-MM-DD")).catch(e => {
+                }, moment(new Date(this.dates.start)).format("YYYY-MM-DD"), moment(new Date(this.dates.end)).format("YYYY-MM-DD")).catch(e => {
                     console.log(e);
                     alert('Не удалось загрузить задачи, перезагрузите страницу');
                 }).finally(() => {
@@ -358,24 +371,22 @@
             },
             getScheduleColor(calendarId) {
                 var color = '';
-                this.calendarList.some(e=>{
-                   if(e.id === calendarId) {
-                       color = e.bgColor;
-                       return true;
-                   }
+                this.calendarList.some(e => {
+                    if (e.id === calendarId) {
+                        color = e.bgColor;
+                        return true;
+                    }
                 });
                 return color
             },
             createPopper(element) {
                 let tooltip = document.querySelector('#view-schedule');
                 let parent = document.querySelector('#calendar-view-block');
-                console.log(tooltip)
-                console.log(parent);
                 let placement = 'right'
-                if(this.view === 'day') {
-                  placement = 'bottom'
+                if (this.view === 'day') {
+                    placement = 'bottom'
                 }
-                this.popper = createPopper(element, tooltip , {
+                this.popper = createPopper(element, tooltip, {
                     placement: placement,
                     modifiers: [
                         {
@@ -406,7 +417,7 @@
                         maxId = id;
                     }
                 });
-                return  1 + maxId;
+                return 1 + maxId;
             },
             duplicateSchedule() {
                 let obj = copyObject(this.element)
@@ -431,9 +442,9 @@
                          */
                         callback: confirm => {
                             if (confirm) {
-                                this.scheduleList.some( (e, num) => {
-                                    if(e.id === schedule.id) {
-                                        this.$api.deleteSchedule(e.id).catch( e => {
+                                this.scheduleList.some((e, num) => {
+                                    if (e.id === schedule.id) {
+                                        this.$api.deleteSchedule(e.id).catch(e => {
                                             this.$confirm(
                                                 {
                                                     message: `Не удалось удалить запись - ${e.message}`,
@@ -452,7 +463,7 @@
                                                 }
                                             )
                                             throw e;
-                                        }).finally( () => {
+                                        }).finally(() => {
                                             this.processing = false
                                         })
                                         this.scheduleList.remove(num)
@@ -465,7 +476,7 @@
                 )
             },
             saveSchedule(schedule = null) {
-                if(schedule  === null) {
+                if (schedule === null) {
                     schedule = this.element
                 }
                 if (schedule.start instanceof Date) {
@@ -488,20 +499,20 @@
 
                 var groupIds = []
                 if (typeof schedule.form !== 'undefined') {
-                    if(typeof  schedule.form.calendar !== 'undefined') {
+                    if (typeof schedule.form.calendar !== 'undefined') {
                         schedule.calendarId = schedule.form.calendar.id
                     }
-                    if(typeof  schedule.form.employee !== 'undefined') {
+                    if (typeof schedule.form.employee !== 'undefined') {
                         schedule.employee = schedule.form.employee.id
                     }
                     schedule.form.groups.forEach(e => {
                         groupIds.push(e.id)
                     })
-                    if(typeof  schedule.form.employee !== 'undefined' && typeof  schedule.form.calendar !== 'undefined') {
+                    if (typeof schedule.form.employee !== 'undefined' && typeof schedule.form.calendar !== 'undefined') {
                         schedule.title = schedule.form.calendar.name + ' - ' + schedule.form.employee.name
                     }
                 }
-                if(schedule.isAllDay) {
+                if (schedule.isAllDay) {
                     schedule.start = new Date(moment(schedule.start).format("YYYY-MM-DD") + " 00:00:00")
                     schedule.end = new Date(moment(schedule.end).format("YYYY-MM-DD") + " 23:59:59")
                 }
@@ -558,7 +569,7 @@
             changeView(viewName) {
                 this.view = viewName;
                 console.log('Change view to ' + viewName)
-                setTimeout( () => {
+                setTimeout(() => {
                     this.loadSchedules()
                 }, 150)
             },
@@ -569,17 +580,16 @@
             onBeforeCreateSchedule(e) {
                 console.log("Before create shedule called");
                 e.guide.clearGuideElement();
-                console.log(e);
-                if(this.view === 'month' && e.triggerEventName === "dblclick") {
+                if (this.view === 'month' && e.triggerEventName === "dblclick") {
                     this.$refs.tuiCalendar.invoke('setDate', new Date(e.start));
                     this.changeView('day');
                     return
                 }
-                if(this.view === 'month') {
+                if (this.view === 'month') {
                     return;
                 }
 
-                if(((new Date(e.end).getTime() / 1000) - (new Date(e.start).getTime() / 1000)) <= 1800) {
+                if (((new Date(e.end).getTime() / 1000) - (new Date(e.start).getTime() / 1000)) <= 1800) {
                     return;
                 }
                 this.createModal({
@@ -591,19 +601,19 @@
             },
             onBeforeUpdateSchedule(event) {
                 var schedule = null;
-                this.scheduleList.some( e => {
-                    if(e.id === event.schedule.id) {
+                this.scheduleList.some(e => {
+                    if (e.id === event.schedule.id) {
                         schedule = e
                         return true;
                     }
-                    return  false;
+                    return false;
                 })
-                if(schedule === null) {
+                if (schedule === null) {
                     console.log("Schedule not found");
                     alert("Error update schedule time - schedule not found in storage")
                 }
                 schedule.start = event.start
-                schedule.end  = event.end
+                schedule.end = event.end
                 this.saveSchedule(schedule)
                 return true;
             },
@@ -614,7 +624,7 @@
                 }
             },
             onClickSchedule(e) {
-                console.log('Call onClickSchedule on id='+e.schedule.id);
+                console.log('Call onClickSchedule on id=' + e.schedule.id);
                 this.element = this.getScheduleById(e.schedule.id);
                 this.createPopper(e.event.srcElement);
                 // implement your code
@@ -661,13 +671,13 @@
                 employees: [],
                 loading: false,
                 element: {
-                    id:  -1,
+                    id: -1,
                     calendarId: '',
                     title: '',
                     form: {
-                      groups: [],
-                      employee: {},
-                      calendar: {},
+                        groups: [],
+                        employee: {},
+                        calendar: {},
                     },
                     category: 'time',
                     start: new Date(),
@@ -707,7 +717,7 @@
                     daynames: this.$config.calendar.dayNames,
                 },
                 disableDblClick: false,
-                isReadOnly: false,
+                isReadOnly: this.$config.calendar.isReadOnly,
                 template: {
                     milestone: function (schedule) {
                         return `<span style="color:red;">TEST ${schedule.title}</span>`;
@@ -749,7 +759,6 @@
                 })
             })
             this.$api.getCalendarTypes(r => {
-                console.log(r)
                 this.calendarList = []
                 r.forEach(c => {
                     this.calendarList.push({
@@ -757,8 +766,8 @@
                         name: c.name,
                         color: c.colors.color,
                         bgColor: c.colors.bgColor,
-                        dragBgColor:  c.colors.dragBgColor,
-                        borderColor:  c.colors.borderColor,
+                        dragBgColor: c.colors.dragBgColor,
+                        borderColor: c.colors.borderColor,
                     })
                 })
             })
@@ -768,22 +777,22 @@
                     this.employees.push(e)
                 })
             })
-            this.$api.waitResponses().then(()=>{
+            this.$api.waitResponses().then(() => {
                 this.loading = false
             })
             this.loadSchedules()
-            $("body").on("click",function(e){
-                if($(e.target).hasClass('tui-full-calendar-time-schedule-content')) {
-                   return
+            $("body").on("click", function (e) {
+                if ($(e.target).hasClass('tui-full-calendar-time-schedule-content')) {
+                    return
                 }
-                if($(e.target).hasClass('tui-full-calendar-weekday-schedule')) {
-                   return
+                if ($(e.target).hasClass('tui-full-calendar-weekday-schedule')) {
+                    return
                 }
-                if($(e.target).hasClass('tui-full-calendar-weekday-schedule-title')) {
-                   return
+                if ($(e.target).hasClass('tui-full-calendar-weekday-schedule-title')) {
+                    return
                 }
-                if($(e.target).hasClass('not-close-view')) {
-                   return
+                if ($(e.target).hasClass('not-close-view')) {
+                    return
                 }
                 document.getElementById("view-schedule").removeAttribute('data-show');
             });
@@ -841,6 +850,7 @@
         background: #337ab7 !important;
         border-color: #2c3e50 !important;
     }
+
     .tui-full-calendar-vlayout-container {
         overflow: hidden !important;
     }
@@ -893,10 +903,11 @@
         display: none;
         width: 250px;
         z-index: 99;
-        -webkit-box-shadow: -2px 0px 14px 0px rgba(0,0,0,0.75);
-        -moz-box-shadow: -2px 0px 14px 0px rgba(0,0,0,0.75);
-        box-shadow: -2px 0px 14px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: -2px 0px 14px 0px rgba(0, 0, 0, 0.75);
+        -moz-box-shadow: -2px 0px 14px 0px rgba(0, 0, 0, 0.75);
+        box-shadow: -2px 0px 14px 0px rgba(0, 0, 0, 0.75);
     }
+
     #arrow,
     #arrow::before {
         position: absolute;
@@ -911,6 +922,7 @@
         background: #FAFAFA;
 
     }
+
     #view-schedule[data-popper-placement^='top'] > #arrow {
         bottom: -4px;
     }
@@ -930,6 +942,7 @@
     #view-schedule[data-show] {
         display: block !important;
     }
+
     .confirm-dialog {
         border-radius: 2px !important;
     }
